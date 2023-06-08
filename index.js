@@ -50,6 +50,11 @@ async function run() {
     const usersCollection = client.db("fdTeach").collection("users");
 
     /**------------Users Collection Apis-----------**/
+    app.get("/users", async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result);
+    });
+    
     app.post("/users", async (req, res) => {
       const body = req.body;
       const result = await usersCollection.insertOne(body);
