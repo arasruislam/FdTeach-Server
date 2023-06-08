@@ -47,8 +47,15 @@ async function run() {
     await client.connect();
 
     // All Collections
+    const usersCollection = client.db("fdTeach").collection("users");
 
-    // All Apis
+    /**------------Users Collection Apis-----------**/
+    app.post("/users", async (req, res) => {
+      const body = req.body;
+      const result = await usersCollection.insertOne(body);
+      res.send(result);
+    });
+    /**------------Users Collection Apis-----------**/
 
     await client.db("admin").command({ ping: 1 });
     console.log(
