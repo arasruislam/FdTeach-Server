@@ -48,19 +48,25 @@ async function run() {
 
     // All Collections
     const usersCollection = client.db("fdTeach").collection("users");
+    const classesCollection = client.db("fdTeach").collection("classes");
 
     /**------------Users Collection Apis-----------**/
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result);
     });
-    
+
     app.post("/users", async (req, res) => {
       const body = req.body;
       const result = await usersCollection.insertOne(body);
       res.send(result);
     });
     /**------------Users Collection Apis-----------**/
+    app.get("/classes", async (req, res) => {
+      const result = await classesCollection.find().toArray();
+      res.send(result);
+    });
+    /**------------ Classes Collection APis--------**/
 
     await client.db("admin").command({ ping: 1 });
     console.log(
