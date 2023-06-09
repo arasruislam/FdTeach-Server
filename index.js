@@ -49,6 +49,9 @@ async function run() {
     // All Collections
     const usersCollection = client.db("fdTeach").collection("users");
     const classesCollection = client.db("fdTeach").collection("classes");
+    const instructorsCollection = client
+      .db("fdTeach")
+      .collection("instructors");
 
     /**------------Users Collection Apis-----------**/
     app.get("/users", async (req, res) => {
@@ -63,10 +66,27 @@ async function run() {
     });
     /**------------Users Collection Apis-----------**/
     app.get("/classes", async (req, res) => {
-      const result = await classesCollection.find().toArray();
+      const query = {};
+      const options = {
+        sort: { number_of_students: -1 },
+      };
+      const result = await classesCollection.find(query, options).toArray();
       res.send(result);
     });
     /**------------ Classes Collection APis--------**/
+
+    /**------------ Instructors Collection Apis----**/
+    app.get("/instructors", async (req, res) => {
+      const query = {};
+      const options = {
+        sort: {
+          number_of_students: -1,
+        },
+      };
+      const result = await instructorsCollection.find(query, options).toArray();
+      res.send(result);
+    });
+    /**------------ Instructors Collection Apis----**/
 
     await client.db("admin").command({ ping: 1 });
     console.log(
