@@ -53,6 +53,11 @@ async function run() {
       .db("fdTeach")
       .collection("instructors");
 
+    // student collections
+    const selectedClassesCollection = client
+      .db("fdTeach")
+      .collection("selectedClasses");
+
     /**------------Users Collection Apis-----------**/
     app.get("/users", async (req, res) => {
       const result = await usersCollection.find().toArray();
@@ -87,6 +92,16 @@ async function run() {
       res.send(result);
     });
     /**------------ Instructors Collection Apis----**/
+
+    /**------------ Selected Classes Collection Apis -----**/
+    app.post("/selectedClasses", async (req, res) => {
+      const mySelectedClasses = req.body;
+      const result = await selectedClassesCollection.insertOne(
+        mySelectedClasses
+      );
+      res.send(result);
+    });
+    /**------------ Selected Classes Collection Apis -----**/
 
     await client.db("admin").command({ ping: 1 });
     console.log(
