@@ -94,6 +94,11 @@ async function run() {
     /**------------ Instructors Collection Apis----**/
 
     /**------------ Selected Classes Collection Apis -----**/
+    app.get("/selectedClasses", async (req, res) => {
+      const result = await selectedClassesCollection.find().toArray();
+      res.send(result);
+    });
+
     app.post("/selectedClasses", async (req, res) => {
       const mySelectedClasses = req.body;
       const result = await selectedClassesCollection.insertOne(
