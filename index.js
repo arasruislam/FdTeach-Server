@@ -30,7 +30,7 @@ const verifyJWT = (req, res, next) => {
   });
 };
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.w00ka8a.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -101,7 +101,11 @@ async function run() {
         query = {
           student_email: email,
         };
+      } else {
+        const allResult = await selectedClassesCollection.find(query).toArray();
+        return res.send(allResult);
       }
+
       const result = await selectedClassesCollection.find(query).toArray();
       res.send(result);
     });
@@ -111,6 +115,13 @@ async function run() {
       const result = await selectedClassesCollection.insertOne(
         mySelectedClasses
       );
+      res.send(result);
+    });
+
+    app.delete("/selected-classes/:id", async (req, res) => {
+      const result = await selectedClassesCollection.deleteOne({
+        _id: new ObjectId(req.params.id),
+      });
       res.send(result);
     });
     /**------------ Selected Classes Collection Apis -----**/
