@@ -94,12 +94,19 @@ async function run() {
     /**------------ Instructors Collection Apis----**/
 
     /**------------ Selected Classes Collection Apis -----**/
-    app.get("/selectedClasses", async (req, res) => {
-      const result = await selectedClassesCollection.find().toArray();
+    app.get("/get-all-selected-classes", async (req, res) => {
+      const email = req.query.email;
+      let query = {};
+      if (email) {
+        query = {
+          student_email: email,
+        };
+      }
+      const result = await selectedClassesCollection.find(query).toArray();
       res.send(result);
     });
 
-    app.post("/selectedClasses", async (req, res) => {
+    app.post("/selected-classes", async (req, res) => {
       const mySelectedClasses = req.body;
       const result = await selectedClassesCollection.insertOne(
         mySelectedClasses
