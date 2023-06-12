@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const morgan = require("morgan");
 
 const app = express();
 const port = process.env.PORT | 5000;
@@ -8,6 +9,7 @@ const port = process.env.PORT | 5000;
 // Middleware
 app.use(express.json());
 app.use(cors());
+app.use(morgan("dev"));
 
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
