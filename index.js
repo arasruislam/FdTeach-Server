@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
 const morgan = require("morgan");
 const stripe = require("stripe")(process.env.PAYMENT_ACCESS_KEY);
 
@@ -55,16 +56,23 @@ async function run() {
     const instructorsCollection = client
       .db("fdTeach")
       .collection("instructors");
-
-    // student collections
     const selectedClassesCollection = client
       .db("fdTeach")
       .collection("selectedClasses");
+    const enrolledCollection = client.db("fdTeach").collection("enrolled");
+
+    /* JWT Token Sign */
+    app.post("/jwt", (req, res) => {
+      const email = req.body;
+      const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+      res.send({ token });
+    });
 
     // Create Payment Intent
-    app.post("/create-payment-intent", async (req, res) => {
+    app.post("/create-payment-intent", verifyJWT, async (req, res) => {
       const { price } = req.body;
-      console.log(price);
 
       if (price) {
         const amount = parseFloat(price) * 100;
@@ -72,7 +80,7 @@ async function run() {
         const paymentIntent = await stripe.paymentIntents.create({
           amount: amount,
           currency: "usd",
-          payment_method_type: ["card"],
+          payment_method_types: ["card"],
         });
         res.send({ clientSecret: paymentIntent.client_secret });
       }
@@ -114,18 +122,24 @@ async function run() {
     /**------------ Instructors Collection Apis----**/
 
     /**------------ Selected Classes Collection Apis -----**/
-    app.get("/get-all-selected-classes", async (req, res) => {
+    app.get("/get-all-selected-classes/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await selectedClassesCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.get("/get-all-selected-classes", verifyJWT, async (req, res) => {
       const email = req.query.email;
-      let query = {};
-      if (email) {
-        query = {
-          student_email: email,
-        };
-      } else {
-        const allResult = await selectedClassesCollection.find(query).toArray();
-        return res.send(allResult);
+      const decodedEmail = req.decoded.email;
+
+      if (email !== decodedEmail) {
+        return res
+          .status(403)
+          .send({ error: true, message: "forbidden access" });
       }
 
+      let query = { student_email: email };
       const result = await selectedClassesCollection.find(query).toArray();
       res.send(result);
     });
@@ -145,6 +159,33 @@ async function run() {
       res.send(result);
     });
     /**------------ Selected Classes Collection Apis -----**/
+
+    /* Enrolled Collections Apis */
+    app.get("/all-enrolled-classes", verifyJWT, async (req, res) => {
+      const email = req.query.email;
+      const decodedEmail = req.decoded.email;
+
+      if (email !== decodedEmail) {
+        return res
+          .status(403)
+          .send({ error: true, message: "forbidden access" });
+      }
+      let query = { student_email: email };
+
+      const options = {
+        sort: { date: -1 },
+      };
+
+      const result = await enrolledCollection.find(query, options).toArray();
+      res.send(result);
+    });
+
+    app.post("/enrolled", verifyJWT, async (req, res) => {
+      const enroll = req.body;
+      const result = await enrolledCollection.insertOne(enroll);
+      res.send(result);
+    });
+    /* Enrolled Collections Apis */
 
     await client.db("admin").command({ ping: 1 });
     console.log(
