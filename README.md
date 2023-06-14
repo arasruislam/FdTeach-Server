@@ -1,7 +1,7 @@
 # FdTeach Server Side
 
-* [Live Website]
-* [Live Server]
+* [Live Website](https://fdteach-b3935.web.app/)
+* [Live Server](https://fdteach-server.vercel.app/)
 * [Client Side Repo](https://github.com/programming-hero-web-course1/b712-summer-camp-client-side-asru-islam)
 
 ## Uses Technologies & Packages

@@ -48,7 +48,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     // All Collections
     const usersCollection = client.db("fdTeach").collection("users");
@@ -173,7 +173,7 @@ async function run() {
       let query = { student_email: email };
 
       const options = {
-        sort: { date: -1 },
+        sort: { date: 1 },
       };
 
       const result = await enrolledCollection.find(query, options).toArray();
